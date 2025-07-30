@@ -1,4 +1,4 @@
-import { faqs } from "@/lib/mocData";
+import { faqs } from "@/lib/data";
 import {
 	Accordion,
 	AccordionContent,

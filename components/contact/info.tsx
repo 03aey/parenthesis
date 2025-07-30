@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { contactInfo } from "@/lib/mocData";
+import { contactInfo } from "@/lib/data";
 
 export default function ContactInfo() {
 	return (
