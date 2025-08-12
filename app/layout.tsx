@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Rubik, Bruno_Ace, Original_Surfer } from "next/font/google";
 import "./globals.css";
-import { ReduxProvider } from "@/components/RootLayout";
+import { ReduxProvider } from "@/components/base/redux-provider";
 import { Toaster } from "@/components/ui/sonner";
 
 const surfer = Original_Surfer({

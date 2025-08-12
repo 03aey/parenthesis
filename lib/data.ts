@@ -1039,3 +1039,24 @@ export const values: Value[] = [
 			"Excellence, authenticity, sustainability, and genuine care for our travelers and the communities we visit guide everything we do.",
 	},
 ];
+
+export const footerLinks = {
+	company: [
+		{ label: "About Us", href: "/about" },
+		{ label: "Our Team", href: "/team" },
+		{ label: "Careers", href: "/careers" },
+		{ label: "Contact Us", href: "/contact" },
+	],
+	services: [
+		{ label: "Event Planning", href: "/services/planning" },
+		{ label: "Venue Booking", href: "/services/venues" },
+		{ label: "Virtual Events", href: "/services/virtual" },
+		{ label: "Corporate Events", href: "/services/corporate" },
+	],
+	resources: [
+		{ label: "Blog", href: "/blog" },
+		{ label: "Guidelines", href: "/guidelines" },
+		{ label: "FAQs", href: "/faqs" },
+		{ label: "Support", href: "/support" },
+	],
+};
