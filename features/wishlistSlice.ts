@@ -15,13 +15,11 @@ export const wishlistSlice = createSlice({
 	initialState,
 	reducers: {
 		addToWishlist: (state, action) => {
-			console.log("action.payload", action.payload);
 			const item = action.payload;
 			const exists = state.items.find((i) => i.id === item.id);
 			if (!exists) state.items.push(item);
 		},
 		removeFromWishlist: (state, action) => {
-			console.log("action.payload", action.payload);
 			state.items = state.items.filter(
 				(item) => item.id !== action.payload
 			);
