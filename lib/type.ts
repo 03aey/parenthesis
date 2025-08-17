@@ -150,3 +150,14 @@ export interface Value {
 	title: string;
 	description: string;
 }
+
+export interface OnboardingField {
+	key: string;
+	label: string;
+	type: "text" | "select" | "multiselect" | "textarea" | "phone" | "date";
+	required: boolean;
+	placeholder?: string;
+	options?: string[];
+	description?: string;
+	category: "personal" | "travel" | "preferences";
+}
