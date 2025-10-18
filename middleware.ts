@@ -7,6 +7,7 @@ export default withAuth(
 		const pathname = req.nextUrl.pathname;
 
 		if (token) {
+			// console.log(token);
 			const isProfileIncomplete = !token.bio;
 
 			const isProtectedPage =
@@ -14,11 +15,7 @@ export default withAuth(
 				pathname.startsWith("/booking");
 
 			if (isProtectedPage && isProfileIncomplete) {
-				const callbackUrl = req.nextUrl.clone();
-				callbackUrl.pathname = "/onboarding";
-				callbackUrl.searchParams.set("callbackUrl", pathname);
-
-				return NextResponse.redirect(callbackUrl);
+				return NextResponse.redirect(new URL("/onboarding", req.url));
 			}
 		}
 

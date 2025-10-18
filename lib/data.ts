@@ -1085,13 +1085,12 @@ export const ONBOARDING_FIELDS: OnboardingField[] = [
 		key: "bio",
 		label: "About You",
 		type: "textarea",
-		required: false,
+		required: true,
 		placeholder: "Tell us about yourself and your travel interests...",
 		description: "Share what makes you excited about travel",
 		category: "personal",
 	},
 
-	// Travel Preferences
 	{
 		key: "travelStyle",
 		label: "Travel Style",
@@ -1160,13 +1159,11 @@ export const ONBOARDING_FIELDS: OnboardingField[] = [
 		description: "What type of accommodation do you prefer?",
 		category: "travel",
 	},
-
-	// Dietary & Special Requirements
 	{
 		key: "dietaryRequirements",
 		label: "Dietary Requirements",
 		type: "multiselect",
-		required: false,
+		required: true,
 		options: [
 			"No restrictions",
 			"Vegetarian",
