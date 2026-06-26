@@ -1,6 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
   output   = "../lib/generated/prisma"
+  runtime  = "vercel-edge"
 }
 
 datasource db {
@@ -8,52 +9,23 @@ datasource db {
 }
 
 model User {
-  id       String   @id @default(cuid())
-  email    String   @unique
-  name     String
-  image    String?
-  phone    String?
-  location String?
-  bio      String?
-  role     UserRole @default(USER)
+  id    String   @id @default(cuid())
+  email String   @unique
+  name  String
+  image String?
+  role  UserRole @default(USER)
 
-  hashedPassword String?
+  hashedPassword      String?
+  onboardingCompleted Boolean @default(false)
 
   emailVerified DateTime?
   accounts      Account[]
   sessions      Session[]
 
-  travelStyle         String[]
-  budget              String?
-  groupSize           String?
-  accommodation       String?
-  dietaryRequirements String[]
-  interests           String[]
-
-  loyaltyPoints Int          @default(0)
-  loyaltyLevel  LoyaltyLevel @default(BRONZE)
-
-  bookings  Booking[]
-  reviews   Review[]
-  wishlists Wishlist[]
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("users")
-}
-
-enum UserRole {
-  USER
-  ADMIN
-  SUPER_ADMIN
-}
-
-enum LoyaltyLevel {
-  BRONZE
-  SILVER
-  GOLD
-  PLATINUM
 }
 
 model Account {
@@ -95,187 +67,8 @@ model VerificationToken {
   @@map("verificationtokens")
 }
 
-model Wishlist {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  destinationId String?
-  packageId     String?
-  experienceId  String?
-
-  itemType  String // "destination", "package", or "experience"
-  itemTitle String
-  itemImage String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userId, destinationId, packageId, experienceId])
-  @@map("wishlists")
-}
-
-model Destination {
-  id          String   @id @default(cuid())
-  title       String
-  country     String
-  continent   String
-  type        String
-  description String
-  image       String
-  rating      Float    @default(4.5)
-  price       Int
-  bestSeason  String?
-  duration    Int?
-  highlights  String[]
-
-  bookings Booking[]
-  reviews  Review[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("destinations")
-}
-
-model Package {
-  id           String    @id @default(cuid())
-  title        String
-  description  String
-  duration     Int
-  price        Int
-  rating       Float     @default(4.5)
-  image        String
-  itinerary    String[]
-  inclusions   String[]
-  exclusions   String[]
-  maxGroupSize Int
-  startDate    DateTime?
-  endDate      DateTime?
-
-  bookings Booking[]
-  reviews  Review[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("packages")
-}
-
-model Experience {
-  id              String @id @default(cuid())
-  title           String
-  category        String
-  description     String
-  location        String
-  image           String
-  price           Int
-  duration        Int
-  rating          Float  @default(4.5)
-  maxParticipants Int
-
-  bookings Booking[]
-  reviews  Review[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("experiences")
-}
-
-model Booking {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  destinationId String?
-  destination   Destination? @relation(fields: [destinationId], references: [id], onDelete: SetNull)
-
-  packageId String?
-  package   Package? @relation(fields: [packageId], references: [id], onDelete: SetNull)
-
-  experienceId String?
-  experience   Experience? @relation(fields: [experienceId], references: [id], onDelete: SetNull)
-
-  startDate  DateTime
-  endDate    DateTime
-  guestCount Int
-  totalPrice Int
-  status     BookingStatus @default(PENDING)
-  notes      String?
-
-  payment Payment?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("bookings")
-}
-
-enum BookingStatus {
-  PENDING
-  CONFIRMED
-  CANCELLED
-  COMPLETED
-}
-
-model Review {
-  id     String @id @default(cuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  destinationId String?
-  destination   Destination? @relation(fields: [destinationId], references: [id], onDelete: Cascade)
-
-  packageId String?
-  package   Package? @relation(fields: [packageId], references: [id], onDelete: Cascade)
-
-  experienceId String?
-  experience   Experience? @relation(fields: [experienceId], references: [id], onDelete: Cascade)
-
-  rating   Int     @default(5)
-  comment  String
-  verified Boolean @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("reviews")
-}
-
-model Payment {
-  id        String  @id @default(cuid())
-  bookingId String  @unique
-  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-
-  amount        Int
-  currency      String        @default("USD")
-  status        PaymentStatus @default(PENDING)
-  stripeId      String?
-  paymentMethod String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("payments")
-}
-
-enum PaymentStatus {
-  PENDING
-  COMPLETED
-  FAILED
-  REFUNDED
-}
-
-model FAQ {
-  id       String @id @default(cuid())
-  question String
-  answer   String
-  category String
-  order    Int    @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("faqs")
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
 }
