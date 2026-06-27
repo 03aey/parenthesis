@@ -5,6 +5,19 @@ export enum TripType {
 	PACKAGE = "package",
 }
 
+export const signupSchema = z.object({
+	name: z
+		.string()
+		.trim()
+		.min(2, "Name must be at least 2 characters")
+		.max(50, "Name must be less than 50 characters"),
+	email: z.email().trim().toLowerCase(),
+	password: z
+		.string()
+		.min(8, "Password must be at least 8 characters")
+		.max(100, "Password must be less than 100 characters"),
+});
+
 export const bookingSchema = z.object({
 	travelers_info: z.array(
 		z.object({
@@ -14,7 +27,7 @@ export const bookingSchema = z.object({
 			dateOfBirth: z.string("Date of birth is required"),
 			passport: z.string("Passport number is required"),
 			nationality: z.string("Nationality is required"),
-		})
+		}),
 	),
 	emergencyContact: z.object({
 		name: z.string("Name is required"),
