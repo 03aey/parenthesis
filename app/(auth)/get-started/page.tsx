@@ -1,8 +1,6 @@
 "use client";
 
-import type React from "react";
 import { useState, useEffect } from "react";
-import { getProviders, signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,14 +15,18 @@ import {
 	AlertCircle,
 	Loader2,
 	User,
+	Github,
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { FaGithub } from "react-icons/fa";
 import { registerUser } from "@/actions/auth";
+import { getProviders } from "next-auth/react";
+import { signIn } from "next-auth/react";
 
 export default function SignUpPage() {
-	const [providers, setProviders] = useState<any>({});
+	const [providers, setProviders] = useState<Record<string, any> | null>(
+		null,
+	);
 	const [formData, setFormData] = useState({
 		name: "",
 		email: "",
@@ -32,7 +34,7 @@ export default function SignUpPage() {
 	});
 	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
-	const [isGihubLoading, setIsGihubLoading] = useState(false);
+	const [isGithubLoading, setIsGithubLoading] = useState(false);
 	const [error, setError] = useState("");
 
 	const router = useRouter();
@@ -40,14 +42,19 @@ export default function SignUpPage() {
 	const callbackUrl = searchParams.get("callbackUrl") || "/";
 
 	useEffect(() => {
-		getProviders().then(setProviders);
+		async function loadProviders() {
+			const providers = await getProviders();
+			setProviders(providers);
+		}
+
+		loadProviders();
 	}, []);
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setFormData({
-			...formData,
+		setFormData((prev) => ({
+			...prev,
 			[e.target.name]: e.target.value,
-		});
+		}));
 		setError("");
 	};
 
@@ -56,8 +63,8 @@ export default function SignUpPage() {
 		setIsLoading(true);
 		setError("");
 
-		if (formData.password.length < 6) {
-			setError("Password must be at least 6 characters long");
+		if (formData.password.length < 8) {
+			setError("Password must be at least 8 characters long");
 			setIsLoading(false);
 			return;
 		}
@@ -66,15 +73,19 @@ export default function SignUpPage() {
 			const result = await registerUser(
 				formData.email,
 				formData.name,
-				formData.password
+				formData.password,
 			);
 
-			if (result === false) {
-				setError("Failed to create account. Please try again.");
+			if (result.success === false) {
+				setError(
+					result.message ??
+						"Failed to create account. Please try again.",
+				);
 			} else {
-				toast.success("Welcome to Parenthesis!");
-				router.push("/signin");
-				router.refresh();
+				toast.success("Account created successfully. Please sign in.");
+				router.push(
+					`/sign-in?callbackUrl=${encodeURIComponent(callbackUrl)}`,
+				);
 			}
 		} catch (error) {
 			setError("Something went wrong. Please try again.");
@@ -84,16 +95,18 @@ export default function SignUpPage() {
 	};
 
 	const handleGithubSignIn = async () => {
-		setIsGihubLoading(true);
+		setIsGithubLoading(true);
 		try {
 			await signIn("github", {
-				callbackUrl: callbackUrl === "/" ? "/onboarding" : callbackUrl,
+				callbackUrl,
 			});
 		} catch (error) {
 			setError("Failed to sign up with Github.");
-			setIsGihubLoading(false);
+			setIsGithubLoading(false);
 		}
 	};
+
+	const isSubmitting = isLoading || isGithubLoading;
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
@@ -126,7 +139,7 @@ export default function SignUpPage() {
 										onChange={handleInputChange}
 										className="pl-11 h-12 rounded-xl"
 										required
-										disabled={isLoading}
+										disabled={isSubmitting}
 									/>
 								</div>
 							</div>
@@ -143,7 +156,7 @@ export default function SignUpPage() {
 										onChange={handleInputChange}
 										className="pl-11 h-12 rounded-xl"
 										required
-										disabled={isLoading}
+										disabled={isSubmitting}
 									/>
 								</div>
 							</div>
@@ -162,7 +175,6 @@ export default function SignUpPage() {
 										onChange={handleInputChange}
 										className="pl-11 pr-11 h-12 rounded-xl"
 										required
-										disabled={isLoading}
 									/>
 									<button
 										type="button"
@@ -170,7 +182,7 @@ export default function SignUpPage() {
 											setShowPassword(!showPassword)
 										}
 										className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
-										disabled={isLoading}
+										disabled={isSubmitting}
 									>
 										{showPassword ? (
 											<EyeOff className="h-5 w-5" />
@@ -195,7 +207,7 @@ export default function SignUpPage() {
 								type="submit"
 								variant="secondary"
 								className="w-full border-none capitalize h-12 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl"
-								disabled={isLoading}
+								disabled={isSubmitting}
 							>
 								{isLoading ? (
 									<>
@@ -208,7 +220,29 @@ export default function SignUpPage() {
 							</Button>
 						</form>
 
-						{providers?.github && (
+						{providers === null ? (
+							<div className="space-y-4 mt-6">
+								<div className="relative">
+									<div className="absolute inset-0 flex items-center">
+										<Separator className="w-full" />
+									</div>
+									<div className="relative flex justify-center text-xs uppercase">
+										<span className="bg-white px-4 text-gray-500 font-medium">
+											Or continue with
+										</span>
+									</div>
+								</div>
+
+								<Button
+									variant="outline"
+									className="w-full h-12 rounded-xl"
+									disabled
+								>
+									<Loader2 className="mr-2 h-5 w-5 animate-spin" />
+									Loading providers...
+								</Button>
+							</div>
+						) : (
 							<div className="space-y-4 mt-6">
 								<div className="relative">
 									<div className="absolute inset-0 flex items-center">
@@ -225,14 +259,14 @@ export default function SignUpPage() {
 									variant="outline"
 									className="w-full h-12 bg-white hover:bg-gray-50 border-gray-200 shadow-sm capitalize rounded-xl"
 									onClick={handleGithubSignIn}
-									disabled={isGihubLoading}
+									disabled={isGithubLoading || isLoading}
 								>
-									{isGihubLoading ? (
+									{isGithubLoading ? (
 										<Loader2 className="mr-2 h-5 w-5 animate-spin" />
 									) : (
-										<FaGithub className="mr-3 h-12 w-12" />
+										<Github className="mr-3 h-12 w-12" />
 									)}
-									{isGihubLoading
+									{isGithubLoading
 										? "Creating account..."
 										: "Continue with Github"}
 								</Button>
@@ -244,8 +278,8 @@ export default function SignUpPage() {
 								Already using Parenthesis?
 							</p>
 							<Link
-								href={`/signin?callbackUrl=${encodeURIComponent(
-									callbackUrl
+								href={`/sign-in?callbackUrl=${encodeURIComponent(
+									callbackUrl,
 								)}`}
 								className="text-secondary font-medium hover:underline text-sm"
 							>
