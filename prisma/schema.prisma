@@ -8,14 +8,27 @@ datasource db {
 }
 
 model User {
-  id    String   @id @default(cuid())
-  email String   @unique
-  name  String
-  image String?
-  role  UserRole @default(USER)
+  id       String   @id @default(cuid())
+  email    String   @unique
+  name     String
+  image    String?
+  phone    String?
+  location String?
+  bio      String?
+  role     UserRole @default(USER)
 
   hashedPassword      String?
   onboardingCompleted Boolean @default(false)
+
+  travelStyle         String[]
+  budget              String?
+  groupSize           String?
+  accommodation       String?
+  dietaryRequirements String[]
+  interests           String[]
+
+  loyaltyPoints Int          @default(0)
+  loyaltyLevel  LoyaltyLevel @default(BRONZE)
 
   emailVerified DateTime?
   accounts      Account[]
@@ -70,4 +83,11 @@ enum UserRole {
   USER
   ADMIN
   SUPER_ADMIN
+}
+
+enum LoyaltyLevel {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
 }
